@@ -1,5 +1,8 @@
 package com.example.habittracker.domain.repository
 
+import com.example.habittracker.domain.models.Habit
+
 interface HabitRepository {
-    suspend fun addHabit(habitName: String)
+    suspend fun getHabits(): Result<List<Habit>>
+    suspend fun addHabit(habit: Habit): Result<Habit>
 }

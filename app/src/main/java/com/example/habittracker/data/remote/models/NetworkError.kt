@@ -7,6 +7,5 @@ data class NetworkError(
     val networkValidation: NetworkValidationError? = null,
     val localMessage: Int,
     val remoteMessage: String? = null,
-    val errorData : GenericResponse.ErrorData? = null,
     val hasValidationError: Boolean = false
 )

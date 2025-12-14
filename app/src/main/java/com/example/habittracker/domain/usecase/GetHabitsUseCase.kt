@@ -4,8 +4,8 @@ import com.example.habittracker.domain.models.Habit
 import com.example.habittracker.domain.repository.HabitRepository
 import javax.inject.Inject
 
-class AddHabitUseCase @Inject constructor(
+class GetHabitsUseCase @Inject constructor(
     private val repository: HabitRepository
 ) {
-    suspend operator fun invoke(habit: Habit): Result<Habit> = repository.addHabit(habit)
+    suspend operator fun invoke(): Result<List<Habit>> = repository.getHabits()
 }
