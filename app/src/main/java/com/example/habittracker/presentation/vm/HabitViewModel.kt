@@ -1,4 +1,29 @@
 package com.example.habittracker.presentation.vm
 
-class HabitViewModel {
+import com.example.habittracker.presentation.contracts.HabitEffect
+import com.example.habittracker.presentation.contracts.HabitIntent
+import com.example.habittracker.presentation.contracts.HabitState
+import com.example.habittracker.presentation.mvi.BaseMviViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+
+@HiltViewModel
+class HabitViewModel @Inject constructor(
+
+) : BaseMviViewModel<HabitIntent, HabitState, HabitEffect>(
+    initialState = HabitState()
+) {
+    override fun onEvent(intent: HabitIntent) {
+        when (intent) {
+            is HabitIntent.LoadHabits -> {
+                // No Impl
+            }
+            is HabitIntent.AddHabit -> {
+                // No Impl
+            }
+            is HabitIntent.DeleteHabit -> {
+                // No Impl
+            }
+        }
+    }
 }
