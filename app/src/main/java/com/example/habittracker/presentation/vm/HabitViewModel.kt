@@ -15,10 +15,13 @@ class HabitViewModel @Inject constructor(
 ) {
     override fun onEvent(intent: HabitIntent) {
         when (intent) {
-            is HabitIntent.LoadHabits -> {
+            is HabitIntent.fetchHabits -> {
                 // No Impl
             }
             is HabitIntent.AddHabit -> {
+                // No Impl
+            }
+            is HabitIntent.EditHabit -> {
                 // No Impl
             }
             is HabitIntent.DeleteHabit -> {
