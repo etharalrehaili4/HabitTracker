@@ -4,5 +4,6 @@ import com.example.habittracker.presentation.mvi.UiIntent
 
 sealed class HabitIntent : UiIntent {
     object getHabits : HabitIntent()
+    data class GetHabitById(val id: String) : HabitIntent()
     data class AddHabit(val name: String) : HabitIntent()
 }

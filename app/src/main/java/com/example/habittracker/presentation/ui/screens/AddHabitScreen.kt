@@ -26,17 +26,14 @@ fun AddHabitScreen(
         viewModel.uiEffect.collectLatest { effect ->
             when (effect) {
                 is HabitEffect.ShowSuccess -> {
-                    habitName = ""
                     snackbarHostState.showSnackbar(
                         message = effect.message,
-                        duration = SnackbarDuration.Short
                     )
                     onHabitAdded()
                 }
                 is HabitEffect.ShowError -> {
                     snackbarHostState.showSnackbar(
                         message = effect.message,
-                        duration = SnackbarDuration.Long
                     )
                 }
                 is HabitEffect.NavigateBack -> {

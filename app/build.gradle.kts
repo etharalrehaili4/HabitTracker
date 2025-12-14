@@ -92,8 +92,9 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // Security
+    // Security - SQLCipher for database encryption
     implementation("net.zetetic:android-database-sqlcipher:4.5.4")
+    implementation("androidx.sqlite:sqlite:2.1.0")
 
     // Navigation
     implementation("androidx.navigation:navigation-compose:2.9.6")

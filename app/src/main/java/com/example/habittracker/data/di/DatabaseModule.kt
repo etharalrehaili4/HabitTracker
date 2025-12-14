@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.habittracker.data.local.HabitDao
 import com.example.habittracker.data.local.HabitDatabase
+import com.example.habittracker.data.local.SqlCipherKeyManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,20 +19,23 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideHabitDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        sqlCipherKeyManager: SqlCipherKeyManager
     ): HabitDatabase {
+
+        val dbFile = context.getDatabasePath("habit_database")
+
         return Room.databaseBuilder(
             context,
             HabitDatabase::class.java,
-            "habit_database"
+            dbFile.absolutePath
         )
+            .openHelperFactory(sqlCipherKeyManager.getSupportFactory())
             .fallbackToDestructiveMigration()
             .build()
     }
 
     @Provides
-    @Singleton
-    fun provideHabitDao(database: HabitDatabase): HabitDao {
-        return database.HabitDao()
-    }
+    fun provideHabitDao(database: HabitDatabase): HabitDao =
+        database.HabitDao()
 }

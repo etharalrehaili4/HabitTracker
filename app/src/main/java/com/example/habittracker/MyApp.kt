@@ -7,5 +7,6 @@ import dagger.hilt.android.HiltAndroidApp
 class MyApp: Application() {
     override fun onCreate() {
         super.onCreate()
+        System.loadLibrary("sqlcipher")
     }
 }

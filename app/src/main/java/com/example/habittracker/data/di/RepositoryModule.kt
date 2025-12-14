@@ -12,7 +12,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DataModule {
+abstract class RepositoryModule {
 
     @Binds
     @Singleton
@@ -20,9 +20,9 @@ abstract class DataModule {
         habitRepositoryImpl: HabitRepositoryImpl
     ): HabitRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindHabitRemoteDataSource(
-        habitRemoteDataSourceImpl: HabitRemoteDataSourceImpl
-    ): HabitRemoteDataSource
+     @Binds
+     @Singleton
+     abstract fun bindHabitRemoteDataSource(
+         habitRemoteDataSourceImpl: HabitRemoteDataSourceImpl
+     ): HabitRemoteDataSource
 }
