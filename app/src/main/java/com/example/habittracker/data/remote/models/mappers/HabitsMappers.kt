@@ -1,5 +1,6 @@
 package com.example.habittracker.data.remote.models.mappers
 
+import com.example.habittracker.data.local.HabitEntity
 import com.example.habittracker.data.remote.models.AddHabitRequest
 import com.example.habittracker.domain.models.Habit
 import com.example.habittracker.data.remote.models.HabitDto
@@ -16,6 +17,22 @@ fun HabitDto.toDomain(): Habit? {
             name = name
         )
     } else null
+}
+
+fun HabitEntity.toDomain(): Habit {
+    return Habit(
+        id = id,
+        name = name,
+        createdAt = createdAt
+    )
+}
+
+fun Habit.toEntity(): HabitEntity {
+    return HabitEntity(
+        id = id,
+        name = name,
+        createdAt = createdAt
+    )
 }
 
 fun Habit.toAddRequest(): AddHabitRequest {

@@ -11,6 +11,7 @@ import com.example.habittracker.presentation.contracts.HabitState
 import com.example.habittracker.presentation.mvi.BaseMviViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -89,7 +90,7 @@ class HabitViewModel @Inject constructor(
 
         viewModelScope.launch {
             val habit = Habit(
-                id = "",
+                id = UUID.randomUUID().toString(),
                 name = name.trim()
             )
 
