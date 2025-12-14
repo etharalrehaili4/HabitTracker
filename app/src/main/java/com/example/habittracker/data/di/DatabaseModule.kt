@@ -17,13 +17,13 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideWeatherDatabase(
+    fun provideHabitDatabase(
         @ApplicationContext context: Context
     ): HabitDatabase {
         return Room.databaseBuilder(
             context,
             HabitDatabase::class.java,
-            "weather_database"
+            "habit_database"
         )
             .fallbackToDestructiveMigration()
             .build()
@@ -31,7 +31,7 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideWeatherDao(database: HabitDatabase): HabitDao {
+    fun provideHabitDao(database: HabitDatabase): HabitDao {
         return database.HabitDao()
     }
 }

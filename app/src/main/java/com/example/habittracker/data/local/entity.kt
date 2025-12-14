@@ -7,4 +7,5 @@ import androidx.room.PrimaryKey
 data class HabitEntity(
     @PrimaryKey val id: String,
     val name: String,
+    val createdAt: Long = System.currentTimeMillis()
 )
