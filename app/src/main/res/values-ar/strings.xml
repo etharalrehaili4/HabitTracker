@@ -1,0 +1,36 @@
+<resources>
+    <string name="app_name">متتبع العادات</string>
+
+    <!-- Settings Screen -->
+    <string name="settings">الإعدادات</string>
+    <string name="back">رجوع</string>
+
+    <!-- Security Section -->
+    <string name="security">الأمان</string>
+    <string name="secure_storage">التخزين الآمن</string>
+    <string name="secure_storage_enabled">بياناتك مشفرة باستخدام SQLCipher</string>
+    <string name="secure_storage_disabled">التخزين الآمن غير مُفعّل</string>
+    <string name="enabled">مُفعّل</string>
+
+    <!-- Appearance Section -->
+    <string name="appearance">المظهر</string>
+    <string name="dark_mode">الوضع الداكن</string>
+    <string name="dark_mode_on">الوضع الداكن مُفعّل</string>
+    <string name="dark_mode_off">الوضع الفاتح مُفعّل</string>
+
+    <!-- Language Section -->
+    <string name="language">اللغة</string>
+    <string name="arabic_language">العربية / Arabic</string>
+    <string name="language_arabic">العربية</string>
+    <string name="language_english">الإنجليزية (English)</string>
+
+    <!-- Data Section -->
+    <string name="data">البيانات</string>
+    <string name="clear_all_data">مسح جميع البيانات</string>
+    <string name="clear_data_title">مسح جميع البيانات؟</string>
+    <string name="clear_data_message">سيؤدي هذا إلى حذف جميع عاداتك وإعداداتك والبيانات المخزنة مؤقتًا نهائيًا. لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="clear_data_confirm">مسح البيانات</string>
+    <string name="cancel">إلغاء</string>
+    <string name="clear_data_success">تم مسح جميع البيانات بنجاح</string>
+    <string name="clear_data_error">فشل في مسح البيانات</string>
+</resources>
