@@ -1,7 +1,10 @@
 package com.example.habittracker.presentation.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,23 +15,21 @@ import com.example.habittracker.presentation.contracts.HabitIntent
 import com.example.habittracker.presentation.vm.HabitViewModel
 import kotlinx.coroutines.flow.collectLatest
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddHabitScreen(
     viewModel: HabitViewModel = hiltViewModel(),
-    onHabitAdded: () -> Unit = {}
+    onHabitAdded: () -> Unit = {},
+    onBackClick: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
     var habitName by remember { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
 
-    // Handle effects
     LaunchedEffect(Unit) {
         viewModel.uiEffect.collectLatest { effect ->
             when (effect) {
                 is HabitEffect.ShowSuccess -> {
-                    snackbarHostState.showSnackbar(
-                        message = effect.message,
-                    )
                     onHabitAdded()
                 }
                 is HabitEffect.ShowError -> {
@@ -43,7 +44,22 @@ fun AddHabitScreen(
         }
     }
 
-    Scaffold(
+    Scaffold(topBar = { TopAppBar(
+                title = { Text("Add Habit") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                )
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(

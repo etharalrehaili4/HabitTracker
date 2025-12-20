@@ -7,6 +7,7 @@ import androidx.navigation.toRoute
 import com.example.habittracker.presentation.ui.screens.AddHabitScreen
 import com.example.habittracker.presentation.ui.screens.HabitDetailsScreen
 import com.example.habittracker.presentation.ui.screens.HabitListScreen
+import com.example.habittracker.presentation.ui.screens.SettingsScreen
 import kotlinx.serialization.Serializable
 
 fun NavGraphBuilder.navGraph(navController: NavHostController) {
@@ -14,6 +15,12 @@ fun NavGraphBuilder.navGraph(navController: NavHostController) {
         HabitListScreen(
             onHabitClick = { habitId ->
                 navController.navigate(Route.HabitDetailsScreenRoute(habitId))
+            },
+            onNavigateToAddHabit = {
+                navController.navigate(Route.AddHabitScreenRoute)
+            },
+            onNavigateToSettings = {
+                navController.navigate(Route.SettingsScreenRoute)
             }
         )
     }
@@ -22,13 +29,29 @@ fun NavGraphBuilder.navGraph(navController: NavHostController) {
         AddHabitScreen(
             onHabitAdded = {
                 navController.popBackStack()
+            },
+            onBackClick = {
+                navController.popBackStack()
             }
         )
     }
 
     composable<Route.HabitDetailsScreenRoute> { backStackEntry ->
         val route: Route.HabitDetailsScreenRoute = backStackEntry.toRoute()
-        HabitDetailsScreen(habitId = route.habitId)
+        HabitDetailsScreen(
+            habitId = route.habitId,
+            onBackClick = {
+                navController.popBackStack()
+            }
+        )
+    }
+
+    composable<Route.SettingsScreenRoute> {
+        SettingsScreen(
+            onBackClick = {
+                navController.popBackStack()
+            }
+        )
     }
 }
 
@@ -42,4 +65,8 @@ sealed interface Route {
 
     @Serializable
     data class HabitDetailsScreenRoute(val habitId: String) : Route
+
+    @Serializable
+    data object SettingsScreenRoute : Route
 }
+

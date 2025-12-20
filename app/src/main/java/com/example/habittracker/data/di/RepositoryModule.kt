@@ -3,7 +3,9 @@ package com.example.habittracker.data.di
 import com.example.habittracker.data.remote.datasource.HabitRemoteDataSource
 import com.example.habittracker.data.remote.datasource.HabitRemoteDataSourceImpl
 import com.example.habittracker.data.repository.HabitRepositoryImpl
+import com.example.habittracker.data.repository.SettingsRepositoryImpl
 import com.example.habittracker.domain.repository.HabitRepository
+import com.example.habittracker.domain.repository.SettingsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -20,9 +22,16 @@ abstract class RepositoryModule {
         habitRepositoryImpl: HabitRepositoryImpl
     ): HabitRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindSettingsRepository(
+        settingsRepositoryImpl: SettingsRepositoryImpl
+    ): SettingsRepository
+
      @Binds
      @Singleton
      abstract fun bindHabitRemoteDataSource(
          habitRemoteDataSourceImpl: HabitRemoteDataSourceImpl
      ): HabitRemoteDataSource
+
 }
