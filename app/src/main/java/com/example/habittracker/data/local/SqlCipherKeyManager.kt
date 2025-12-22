@@ -1,10 +1,14 @@
 package com.example.habittracker.data.local
 
-import android.content.SharedPreferences
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import android.util.Base64
-import androidx.core.content.edit
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 import net.sqlcipher.database.SupportFactory
 import java.security.KeyStore
 import java.security.SecureRandom
@@ -17,10 +21,15 @@ import javax.inject.Singleton
 
 @Singleton
 class SqlCipherKeyManager @Inject constructor(
-    private val sharedPreferences: SharedPreferences
+    private val dataStore: DataStore<Preferences>
 ) {
     private val keyStore: KeyStore = KeyStore.getInstance("AndroidKeyStore").apply {
         load(null)
+    }
+
+    companion object {
+        private val ENCRYPTED_KEY = stringPreferencesKey("encrypted_key")
+        private val ENCRYPTION_IV = stringPreferencesKey("encryption_iv")
     }
 
     init {
@@ -29,8 +38,11 @@ class SqlCipherKeyManager @Inject constructor(
 
     private fun initialize() {
         generateKeystoreKeyIfNeeded()
-        if (!sharedPreferences.contains("encrypted_key")) {
-            generateAndEncryptSqlCipherKey()
+        runBlocking {
+            val preferences = dataStore.data.first()
+            if (preferences[ENCRYPTED_KEY] == null) {
+                generateAndEncryptSqlCipherKey()
+            }
         }
     }
 
@@ -60,9 +72,11 @@ class SqlCipherKeyManager @Inject constructor(
         val encryptedKey = cipher.doFinal(sqlCipherKey)
         val iv = cipher.iv
 
-        sharedPreferences.edit {
-            putString("encrypted_key", Base64.encodeToString(encryptedKey, Base64.NO_WRAP))
-            putString("encryption_iv", Base64.encodeToString(iv, Base64.NO_WRAP))
+        runBlocking {
+            dataStore.edit { preferences ->
+                preferences[ENCRYPTED_KEY] = Base64.encodeToString(encryptedKey, Base64.NO_WRAP)
+                preferences[ENCRYPTION_IV] = Base64.encodeToString(iv, Base64.NO_WRAP)
+            }
         }
 
         // Zero out the key in memory
@@ -83,11 +97,13 @@ class SqlCipherKeyManager @Inject constructor(
     private fun getSecretKey(keyAlias: String): SecretKey =
         (keyStore.getEntry(keyAlias, null) as KeyStore.SecretKeyEntry).secretKey
 
-    fun getSupportFactory(): SupportFactory {
-        val encryptedKey = sharedPreferences.getString("encrypted_key", null)
+    fun getSupportFactory(): SupportFactory = runBlocking {
+        val preferences = dataStore.data.first()
+
+        val encryptedKey = preferences[ENCRYPTED_KEY]
             ?: error("Encrypted key missing")
 
-        val iv = sharedPreferences.getString("encryption_iv", null)
+        val iv = preferences[ENCRYPTION_IV]
             ?: error("IV missing")
 
         val decryptedKey = getDecryptedSqlCipherKey(
@@ -96,7 +112,7 @@ class SqlCipherKeyManager @Inject constructor(
             iv
         )
 
-        return SupportFactory(decryptedKey, null, false)
+        SupportFactory(decryptedKey, null, false)
     }
 
 }

@@ -1,30 +1,40 @@
 package com.example.habittracker.data.repository
 
 import android.content.Context
-import android.content.SharedPreferences
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.habittracker.data.local.HabitDao
 import com.example.habittracker.domain.models.ENGLISH_MODEL
+import com.example.habittracker.domain.repository.DataManagementRepository
 import com.example.habittracker.domain.repository.LanguageRepository
-import com.example.habittracker.domain.repository.SettingsRepository
 import com.example.habittracker.domain.repository.ThemeRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SettingsRepositoryImpl @Inject constructor(
-    private val sharedPreferences: SharedPreferences,
+class DataManagementRepositoryImpl @Inject constructor(
+    private val dataStore: DataStore<Preferences>,
     @ApplicationContext private val context: Context,
     private val habitDao: HabitDao,
     private val themeRepository: ThemeRepository,
     private val languageRepository: LanguageRepository
-) : SettingsRepository {
+) : DataManagementRepository {
+
+    companion object {
+        private val ENCRYPTED_KEY = stringPreferencesKey("encrypted_key")
+        private val ENCRYPTION_IV = stringPreferencesKey("encryption_iv")
+    }
 
     override suspend fun clearAllData(): Boolean {
         return try {
-            // Save encryption keys before clearing
-            val encryptedKey = sharedPreferences.getString("encrypted_key", null)
-            val encryptionIv = sharedPreferences.getString("encryption_iv", null)
+            // Read encryption keys before clearing
+            val preferences = dataStore.data.first()
+            val encryptedKey = preferences[ENCRYPTED_KEY]
+            val encryptionIv = preferences[ENCRYPTION_IV]
 
             // Try to clear database - delete all habits
             try {
@@ -33,17 +43,15 @@ class SettingsRepositoryImpl @Inject constructor(
                 // If database is corrupted, we'll handle it by clearing preferences only
             }
 
-            // Clear preferences but preserve encryption keys
-            sharedPreferences.edit()
-                .clear()
-                .apply()
+            // Clear all DataStore preferences
+            dataStore.edit { it.clear() }
 
-            // Restore encryption keys
+            // Restore encryption keys if they existed
             if (encryptedKey != null && encryptionIv != null) {
-                sharedPreferences.edit()
-                    .putString("encrypted_key", encryptedKey)
-                    .putString("encryption_iv", encryptionIv)
-                    .apply()
+                dataStore.edit { preferences ->
+                    preferences[ENCRYPTED_KEY] = encryptedKey
+                    preferences[ENCRYPTION_IV] = encryptionIv
+                }
             }
 
             // Reset theme to light mode

@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SettingsViewModel @Inject constructor(
+class DataManagementViewModel @Inject constructor(
     private val clearAllDataUseCase: ClearAllDataUseCase,
 ) : ViewModel() {
 

@@ -1,5 +1,5 @@
 package com.example.habittracker.domain.repository
 
-interface SettingsRepository {
+interface DataManagementRepository {
     suspend fun clearAllData(): Boolean
 }
