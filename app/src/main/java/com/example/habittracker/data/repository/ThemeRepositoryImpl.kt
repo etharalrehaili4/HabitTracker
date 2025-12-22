@@ -9,28 +9,35 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
+import android.content.SharedPreferences
 
 @Singleton
 class ThemeRepositoryImpl @Inject constructor(
     @ApplicationContext private val appContext: Context
 ) : ThemeRepository {
 
-    private val _isDarkMode = MutableStateFlow(getCurrentSystemTheme())
+    companion object {
+        private const val PREFS_NAME = "theme_prefs"
+        private const val KEY_IS_DARK_MODE = "is_dark_mode"
+    }
 
-    private fun getCurrentSystemTheme(): Boolean {
-        return when (AppCompatDelegate.getDefaultNightMode()) {
-            AppCompatDelegate.MODE_NIGHT_YES -> true
-            AppCompatDelegate.MODE_NIGHT_NO -> false
-            else -> {
-                val uiMode = appContext.resources.configuration.uiMode and
-                        android.content.res.Configuration.UI_MODE_NIGHT_MASK
-                uiMode == android.content.res.Configuration.UI_MODE_NIGHT_YES
-            }
-        }
+    private val prefs: SharedPreferences =
+        appContext.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+
+    private val _isDarkMode = MutableStateFlow(getSavedTheme())
+
+    private fun getSavedTheme(): Boolean {
+        return prefs.getBoolean(KEY_IS_DARK_MODE, false)
     }
 
     override fun setDarkMode(isDark: Boolean) {
+        // Save to SharedPreferences
+        prefs.edit().putBoolean(KEY_IS_DARK_MODE, isDark).apply()
+
+        // Update StateFlow
         _isDarkMode.value = isDark
+
+        // Apply theme
         val mode = if (isDark) {
             AppCompatDelegate.MODE_NIGHT_YES
         } else {

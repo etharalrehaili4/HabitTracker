@@ -12,7 +12,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.habittracker.presentation.navigation.navGraph
 import com.example.habittracker.presentation.navigation.Route
 import com.example.habittracker.presentation.vm.ThemeViewModel
-import com.example.habittracker.ui.theme.HabitTrackerTheme
+import com.example.habittracker.presentation.ui.theme.HabitTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
