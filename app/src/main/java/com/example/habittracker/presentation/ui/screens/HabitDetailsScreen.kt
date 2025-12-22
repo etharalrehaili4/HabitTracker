@@ -1,11 +1,13 @@
 package com.example.habittracker.presentation.ui.screens
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -17,9 +19,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.habittracker.R
 import com.example.habittracker.presentation.contracts.HabitEffect
 import com.example.habittracker.presentation.contracts.HabitIntent
 import com.example.habittracker.presentation.vm.HabitViewModel
@@ -54,10 +59,12 @@ fun HabitDetailsScreen(
             }
         }
     }
+
     LaunchedEffect(habitId) {
         viewModel.onEvent(HabitIntent.GetHabitById(habitId))
     }
 
+    // -- Edit Dialog Section --
     if (showEditDialog && state.selectedHabit != null) {
         EditHabitDialog(
             currentName = state.selectedHabit!!.name ?: "",
@@ -69,6 +76,7 @@ fun HabitDetailsScreen(
         )
     }
 
+    // -- Delete Confirmation Dialog Section --
     if (showDeleteDialog) {
         DeleteConfirmationDialog(
             habitName = state.selectedHabit?.name ?: "",
@@ -80,25 +88,29 @@ fun HabitDetailsScreen(
         )
     }
 
+    // -- TopBar Section --
     Scaffold(topBar = { TopAppBar(
-                title = { Text("Habit Details") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        title = {Text(text = stringResource(R.string.habit_details))},
+        navigationIcon = {
+            // -- Back Button --
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Back"
                 )
-            )
+            }
         },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    )
+    },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         when {
+
+            // -- Loading State --
             state.isLoading -> {
                 Box(
                     modifier = Modifier
@@ -109,32 +121,42 @@ fun HabitDetailsScreen(
                     CircularProgressIndicator()
                 }
             }
+
+            // -- Error State --
             state.error != null -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
+                        .padding(dimensionResource(R.dimen.screen_padding)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
+
+                        // -- Error Message --
                         Text(
-                            text = "Error: ${state.error}",
+                            text = stringResource(R.string.error) + " ${state.error}",
                             color = MaterialTheme.colorScheme.error,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
+                            style = MaterialTheme.typography.bodyLarge
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
+
+                        // -- Retry Button --
                         Button(
                             onClick = { viewModel.onEvent(HabitIntent.GetHabitById(habitId)) }
                         ) {
-                            Text("Retry")
+                            Text(stringResource(R.string.retry))
                         }
                     }
                 }
             }
+
+            // -- Habit Not Found State --
             state.selectedHabit == null -> {
                 Box(
                     modifier = Modifier
@@ -143,67 +165,65 @@ fun HabitDetailsScreen(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = "Habit not found",
+                        text = stringResource(R.string.habit_not_found),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.bodyLarge
                     )
                 }
             }
+
+            // -- Habit Details State --
             else -> {
                 val habit = state.selectedHabit!!
+                val formattedDate = SimpleDateFormat(
+                    "MMM dd, yyyy 'at' HH:mm",
+                    Locale.getDefault()
+                ).format(Date(habit.createdAt))
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                        .padding(dimensionResource(R.dimen.screen_padding)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
                 ) {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                        elevation = CardDefaults.cardElevation(
+                            defaultElevation = dimensionResource(R.dimen.card_elevation_medium)
+                        )
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(24.dp),
-                            verticalArrangement = Arrangement.spacedBy(16.dp)
+                                .padding(dimensionResource(R.dimen.screen_padding_large)),
+                            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
                         ) {
+
+                            // -- Habit Name --
                             Text(
-                                text = "Name",
+                                text = stringResource(R.string.name),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+
                             Text(
-                                text = habit.name ?: "No name",
+                                text = habit.name ?: stringResource(R.string.no_name),
                                 style = MaterialTheme.typography.headlineMedium
                             )
 
                             HorizontalDivider()
 
+                            // -- Created At --
                             Text(
-                                text = "Created At",
+                                text = stringResource(R.string.created_at),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
+
                             Text(
-                                text = SimpleDateFormat(
-                                    "MMMM dd, yyyy 'at' HH:mm",
-                                    Locale.getDefault()
-                                ).format(Date(habit.createdAt)),
+                                text = formattedDate,
                                 style = MaterialTheme.typography.bodyLarge
-                            )
-
-                            HorizontalDivider()
-
-                            Text(
-                                text = "ID",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Text(
-                                text = habit.id,
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }
@@ -211,8 +231,10 @@ fun HabitDetailsScreen(
                     // Action buttons
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
                     ) {
+
+                        // -- Edit Button --
                         Button(
                             onClick = { showEditDialog = true },
                             modifier = Modifier.weight(1f),
@@ -220,13 +242,14 @@ fun HabitDetailsScreen(
                                 containerColor = MaterialTheme.colorScheme.primary
                             )
                         ) {
+                            // -- Edit Icon and Text --
                             Icon(
                                 imageVector = Icons.Default.Edit,
                                 contentDescription = null,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
                             )
                             Spacer(modifier = Modifier.width(8.dp))
-                            Text("Edit")
+                            Text(stringResource(R.string.edit))
                         }
 
                         Button(

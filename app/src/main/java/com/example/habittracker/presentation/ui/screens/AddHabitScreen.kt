@@ -8,8 +8,10 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.habittracker.R
 import com.example.habittracker.presentation.contracts.HabitEffect
 import com.example.habittracker.presentation.contracts.HabitIntent
 import com.example.habittracker.presentation.vm.HabitViewModel
@@ -44,37 +46,41 @@ fun AddHabitScreen(
         }
     }
 
+    // -- TopBar Section --
     Scaffold(topBar = { TopAppBar(
-                title = { Text("Add Habit") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        title = { Text(stringResource(R.string.add_habit)) },
+        navigationIcon = {
+            // -- Back Button --
+            IconButton(onClick = onBackClick) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = stringResource(R.string.back)
                 )
-            )
+            }
         },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    )
+    },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp),
+                .padding(dimensionResource(R.dimen.screen_padding)),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            // -- Habit Name Input Field --
             OutlinedTextField(
                 value = habitName,
                 onValueChange = { habitName = it },
-                label = { Text("Habit Name") },
-                placeholder = { Text("Enter habit name...") },
+                label = { Text(stringResource(R.string.habit_name)) },
+                placeholder = { Text(stringResource(R.string.enter_habit)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 isError = state.formState.nameError != null,
@@ -89,8 +95,9 @@ fun AddHabitScreen(
                 enabled = !state.formState.isSubmitting
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
 
+            // -- Add Habit Button --
             Button(
                 onClick = {
                     viewModel.onEvent(HabitIntent.AddHabit(habitName))
@@ -100,13 +107,13 @@ fun AddHabitScreen(
             ) {
                 if (state.formState.isSubmitting) {
                     CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(dimensionResource(R.dimen.progress_indicator_size)),
                         color = MaterialTheme.colorScheme.onPrimary,
-                        strokeWidth = 2.dp
+                        strokeWidth = dimensionResource(R.dimen.progress_indicator_stroke)
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
                 }
-                Text(if (state.formState.isSubmitting) "Adding..." else "Add Habit")
+                Text(if (state.formState.isSubmitting) stringResource(R.string.adding) else stringResource(R.string.add_habit))
             }
         }
     }

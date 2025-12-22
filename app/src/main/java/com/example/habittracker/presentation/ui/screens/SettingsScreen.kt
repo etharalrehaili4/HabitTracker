@@ -18,7 +18,6 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -39,9 +38,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.habittracker.R
 import com.example.habittracker.domain.models.AppLanguage
@@ -55,54 +54,57 @@ import com.example.habittracker.presentation.vm.ThemeViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
-    viewModel: DataManagementViewModel = hiltViewModel(),
+    dataVM: DataManagementViewModel = hiltViewModel(),
     languageVM: LanguageViewModel = hiltViewModel(),
     themeVM: ThemeViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {}
 ) {
-    val clearDataResult by viewModel.clearDataResult.collectAsState()
+
+    val toggleLanguage = languageVM.getCurrentLanguage()
+    val toggleMode by themeVM.isDarkMode.collectAsState()
+
+    val clearDataResult by dataVM.clearDataResult.collectAsState()
     var showClearDataDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
-
-    val selectedLanguage by remember { mutableStateOf(languageVM.getCurrentLanguage())}
-    val isDarkMode by themeVM.isDarkMode.collectAsState()
 
     val clearDataSuccessMessage = stringResource(R.string.clear_data_success)
     val clearDataErrorMessage = stringResource(R.string.clear_data_error)
 
+    // -- Handle Clear Data Result --
     LaunchedEffect(clearDataResult) {
         when (clearDataResult) {
             is ClearDataResult.Success -> {
                 snackbarHostState.showSnackbar(clearDataSuccessMessage)
-                viewModel.resetClearDataResult()
+                dataVM.resetClearDataResult()
             }
             is ClearDataResult.Error -> {
                 snackbarHostState.showSnackbar(clearDataErrorMessage)
-                viewModel.resetClearDataResult()
+                dataVM.resetClearDataResult()
             }
             null -> {}
         }
     }
 
+    // -- Clear Data Confirmation Dialog --
     if (showClearDataDialog) {
         ClearDataConfirmationDialog(
             onConfirm = {
-                viewModel.clearAllData()
+                dataVM.clearAllData()
                 showClearDataDialog = false
             },
             onDismiss = { showClearDataDialog = false }
         )
     }
 
+    // -- TopBar Section --
     Scaffold(topBar = { TopAppBar(
-        title = {
-            Text(text = stringResource(R.string.settings))
-        },
+        title = { Text(text = stringResource(R.string.settings)) },
         navigationIcon = {
+            // -- Back Button --
             IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = stringResource(R.string.back)
+                    contentDescription = "Back"
                 )
             }
         },
@@ -118,28 +120,38 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
+                .padding(dimensionResource(R.dimen.screen_padding))
                 .verticalScroll(rememberScrollState())
         ) {
 
-            // Appearance Section
+            // -- Appearance and Language Section --
             SectionHeader(title = stringResource(R.string.appearance_and_language))
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
 
+            // -- Mode Toggle --
             SettingsToggleItem(
-                title = stringResource(R.string.dark_mode),
-                isChecked = isDarkMode,
+                title = if (toggleMode) {
+                    stringResource(R.string.dark_mode)
+                } else {
+                    stringResource(R.string.light_mode)
+                },
+                isChecked = toggleMode,
                 onCheckedChange = {
                     themeVM.setDarkMode(it)
                 }
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
 
+            // -- Language Toggle --
             SettingsToggleItem(
-                title = stringResource(R.string.arabic_language),
-                isChecked = selectedLanguage.code == Languages.AR.code,
+                title = if (toggleLanguage.code == Languages.AR.code) {
+                    stringResource(R.string.arabic_language)
+                } else {
+                    stringResource(R.string.english_language)
+                },
+                isChecked = toggleLanguage.code == Languages.AR.code,
                 onCheckedChange = { isArabic ->
                     val newLanguage = if (isArabic) {
                         AppLanguage(
@@ -154,16 +166,18 @@ fun SettingsScreen(
                 }
             )
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
 
-            // Data Section
+            // -- Data Management Section --
             SectionHeader(title = stringResource(R.string.data))
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
 
+            // -- Clear Data Button --
             ClearDataButton(onClick = { showClearDataDialog = true })
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
+
         }
     }
 }
@@ -187,16 +201,18 @@ private fun SettingsToggleItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 8.dp),
+            .padding(vertical = dimensionResource(R.dimen.spacing_small)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(modifier = Modifier.weight(1f)) {
+            // -- Toggle Title --
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge
             )
         }
+        // -- Toggle Switch --
         Switch(
             checked = isChecked,
             onCheckedChange = onCheckedChange
@@ -206,6 +222,8 @@ private fun SettingsToggleItem(
 
 @Composable
 private fun ClearDataButton(onClick: () -> Unit) {
+
+    // -- Clear Data Button --
     Button(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
@@ -213,14 +231,16 @@ private fun ClearDataButton(onClick: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.error
         )
     ) {
+        // -- Delete Icon --
         Icon(
             imageVector = Icons.Default.Delete,
             contentDescription = null,
-            modifier = Modifier.size(20.dp)
+            modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
         )
         Text(
+            // -- Button Text --
             text = stringResource(R.string.clear_all_data),
-            modifier = Modifier.padding(start = 8.dp)
+            modifier = Modifier.padding(start = dimensionResource(R.dimen.spacing_small))
         )
     }
 }
@@ -233,18 +253,21 @@ private fun ClearDataConfirmationDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         icon = {
+            // -- Delete Icon --
             Icon(
                 imageVector = Icons.Default.Delete,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.error
             )
         },
+        // -- Dialog Title and Message --
         title = {
             Text(text = stringResource(R.string.clear_data_title))
         },
         text = {
             Text(text = stringResource(R.string.clear_data_message))
         },
+        // -- Confirm and Dismiss Buttons --
         confirmButton = {
             Button(
                 onClick = onConfirm,

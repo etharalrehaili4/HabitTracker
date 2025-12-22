@@ -10,23 +10,19 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.habittracker.R
 import com.example.habittracker.domain.models.Habit
 import com.example.habittracker.presentation.contracts.HabitIntent
-import com.example.habittracker.presentation.navigation.Route
 import com.example.habittracker.presentation.vm.HabitViewModel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -40,40 +36,30 @@ fun HabitListScreen(
     onNavigateToSettings: () -> Unit = {}
 ) {
     val state by viewModel.uiState.collectAsState()
-    val lifecycleOwner = LocalLifecycleOwner.current
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME) {
-                viewModel.onEvent(HabitIntent.getHabits)
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.onEvent(HabitIntent.getHabits)
     }
 
+    // -- TopBar Section --
     Scaffold(topBar = { TopAppBar(
-                title = { Text("My Habits") },
-                actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        title = { Text(stringResource(R.string.my_habits)) },
+        actions = {
+            // -- Settings Button --
+            IconButton(onClick = onNavigateToSettings) {
+                Icon(
+                    imageVector = Icons.Default.Settings,
+                    contentDescription = "Settings"
                 )
-            )
+            }
         },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+            titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        )
+    )
+    },
+        // -- Add Habit Button --
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onNavigateToAddHabit
@@ -86,6 +72,8 @@ fun HabitListScreen(
         }
     ) { paddingValues ->
         when {
+
+            // -- Loading State --
             state.isLoading -> {
                 Box(
                     modifier = Modifier
@@ -96,33 +84,42 @@ fun HabitListScreen(
                     CircularProgressIndicator()
                 }
             }
+
+            // -- Error State --
             state.error != null -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues)
-                        .padding(16.dp),
+                        .padding(dimensionResource(R.dimen.screen_padding)),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
+
+                        // -- Error Message --
                         Text(
-                            text = "Error: ${state.error}",
+                            text = stringResource(R.string.error) + " ${state.error}",
                             color = MaterialTheme.colorScheme.error,
                             textAlign = TextAlign.Center,
                             style = MaterialTheme.typography.bodyLarge
                         )
-                        Spacer(modifier = Modifier.height(16.dp))
+
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_medium)))
+
+                        // -- Retry Button --
                         Button(
                             onClick = { viewModel.onEvent(HabitIntent.getHabits) }
                         ) {
-                            Text("Retry")
+                            Text(stringResource(R.string.retry))
                         }
                     }
                 }
             }
+
+            // -- Empty State --
             state.habits.isEmpty() -> {
                 Box(
                     modifier = Modifier
@@ -134,14 +131,18 @@ fun HabitListScreen(
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
+                        // -- No Habits Message --
                         Text(
-                            text = "No habits yet",
+                            text = stringResource(R.string.no_habits_title),
                             style = MaterialTheme.typography.headlineSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.spacing_small)))
+
+                        // -- No Habits Description --
                         Text(
-                            text = "Tap the + button to add your first habit",
+                            text = stringResource(R.string.no_habits_desc),
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             textAlign = TextAlign.Center
@@ -149,13 +150,15 @@ fun HabitListScreen(
                     }
                 }
             }
+
+            // -- Habit List --
             else -> {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    contentPadding = PaddingValues(dimensionResource(R.dimen.screen_padding)),
+                    verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_medium))
                 ) {
                     items(
                         items = state.habits,
@@ -177,29 +180,37 @@ private fun HabitItem(
     habit: Habit,
     onClick: () -> Unit
 ) {
+
+    val formattedDate = SimpleDateFormat(
+        "MMM dd, yyyy 'at' HH:mm",
+        Locale.getDefault()
+    ).format(Date(habit.createdAt))
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(
+            defaultElevation = dimensionResource(R.dimen.card_elevation_small)
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(dimensionResource(R.dimen.screen_padding)),
+            verticalArrangement = Arrangement.spacedBy(dimensionResource(R.dimen.spacing_small))
         ) {
+
+            // -- Habit Name --
             Text(
-                text = habit.name ?: "Unnamed Habit",
+                text = habit.name ?: stringResource(R.string.unnamed_habit),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
-            
+
+            // -- Habit Creation Date --
             Text(
-                text = "Created: ${SimpleDateFormat(
-                    "MMM dd, yyyy 'at' HH:mm",
-                    Locale.getDefault()
-                ).format(Date(habit.createdAt))}",
+                text = stringResource(R.string.created) + formattedDate,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

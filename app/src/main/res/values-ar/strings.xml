@@ -1,22 +1,28 @@
 <resources>
     <string name="app_name">متتبع العادات</string>
 
+    <!-- Add Habit Screen -->
+    <string name="add_habit">ٌإضافة عادة</string>
+    <string name="habit_name">اسم العادة</string>
+    <string name="enter_habit">أدخل اسم العادة...</string>
+    <string name="adding">إضافة...</string>
+
+    <!-- Habit List Screen -->
+    <string name="my_habits">عاداتي</string>
+    <string name="error">خطأ: </string>
+    <string name="retry">إعادة المحاولة</string>
+    <string name="no_habits_title">لا توجد عادات بعد</string>
+    <string name="no_habits_desc">أضغط على زر + لإضافة عادتك الأولى</string>
+    <string name="unnamed_habit">عادة بدون اسم</string>
+    <string name="created">تم الإنشاء: </string>
+
     <!-- Settings Screen -->
     <string name="settings">الإعدادات</string>
-    <string name="back">رجوع</string>
-
-    <!-- Appearance Section -->
     <string name="appearance_and_language">المظهر واللغة</string>
     <string name="dark_mode">الوضع الداكن</string>
-    <string name="dark_mode_on">الوضع الداكن مُفعّل</string>
-    <string name="dark_mode_off">الوضع الفاتح مُفعّل</string>
-
-    <!-- Language Section -->
-    <string name="arabic_language">العربية / Arabic</string>
-    <string name="language_arabic">العربية</string>
-    <string name="language_english">الإنجليزية (English)</string>
-
-    <!-- Data Section -->
+    <string name="light_mode">الوضع الفاتح</string>
+    <string name="arabic_language">العربية</string>
+    <string name="english_language">English</string>
     <string name="data">البيانات</string>
     <string name="clear_all_data">مسح جميع البيانات</string>
     <string name="clear_data_title">مسح جميع البيانات؟</string>
@@ -25,4 +31,14 @@
     <string name="cancel">إلغاء</string>
     <string name="clear_data_success">تم مسح جميع البيانات بنجاح</string>
     <string name="clear_data_error">فشل في مسح البيانات</string>
+
+    <!-- Habit Details Screen -->
+    <string name="habit_details">تفاصيل العادة</string>
+    <string name="habit_not_found">العادة غير موجودة</string>
+    <string name="name">الاسم</string>
+    <string name="no_name">بدون اسم</string>
+    <string name="created_at">تاريخ الإنشاء</string>
+    <string name="edit">تعديل</string>
+    <string name="delete">حذف</string>
+
 </resources>
