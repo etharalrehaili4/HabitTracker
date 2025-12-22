@@ -4,8 +4,9 @@ import com.example.habittracker.domain.models.AppLanguage
 import com.example.habittracker.domain.repository.LanguageRepository
 import javax.inject.Inject
 
-class SetLanguageUseCase @Inject constructor(
+class GetCurrentLanguageUseCase @Inject constructor(
     private val settingsRepository: LanguageRepository
 ) {
-    operator fun invoke(language: AppLanguage) = settingsRepository.setLanguage(language)
+    operator fun invoke(): AppLanguage = settingsRepository.getCurrentLanguage()
+
 }

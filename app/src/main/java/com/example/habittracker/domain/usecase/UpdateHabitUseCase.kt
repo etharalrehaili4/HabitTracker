@@ -8,11 +8,7 @@ class UpdateHabitUseCase @Inject constructor(
     private val repository: HabitRepository
 ) {
     suspend operator fun invoke(habit: Habit): Result<Unit> {
-        return try {
-            repository.updateHabit(habit)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        repository.updateHabit(habit)
+        return Result.success(Unit)
     }
 }

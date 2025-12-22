@@ -105,4 +105,12 @@ dependencies {
     // Kotlin Serialization Converter
     implementation("com.jakewharton.retrofit:retrofit2-kotlinx-serialization-converter:1.0.0")
 
+    // DataStore
+    implementation("androidx.datastore:datastore-preferences:1.2.0")
+    implementation("androidx.datastore:datastore-core:1.2.0")
+
+    // AppCompat
+    implementation("androidx.appcompat:appcompat:1.7.1")
+
+
 }

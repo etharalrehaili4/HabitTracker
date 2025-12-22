@@ -5,21 +5,13 @@
     <string name="settings">Settings</string>
     <string name="back">Back</string>
 
-    <!-- Security Section -->
-    <string name="security">Security</string>
-    <string name="secure_storage">Secure Storage</string>
-    <string name="secure_storage_enabled">Your data is encrypted with SQLCipher</string>
-    <string name="secure_storage_disabled">Secure storage is not configured</string>
-    <string name="enabled">Enabled</string>
-
     <!-- Appearance Section -->
-    <string name="appearance">Appearance</string>
+    <string name="appearance_and_language">Appearance and Language</string>
     <string name="dark_mode">Dark Mode</string>
     <string name="dark_mode_on">Dark theme enabled</string>
     <string name="dark_mode_off">Light theme enabled</string>
 
     <!-- Language Section -->
-    <string name="language">Language</string>
     <string name="arabic_language">Arabic / العربية</string>
     <string name="language_arabic">العربية (Arabic)</string>
     <string name="language_english">English</string>

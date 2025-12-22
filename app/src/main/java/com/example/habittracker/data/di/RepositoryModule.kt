@@ -3,9 +3,13 @@ package com.example.habittracker.data.di
 import com.example.habittracker.data.remote.datasource.HabitRemoteDataSource
 import com.example.habittracker.data.remote.datasource.HabitRemoteDataSourceImpl
 import com.example.habittracker.data.repository.HabitRepositoryImpl
+import com.example.habittracker.data.repository.LanguageRepositoryImpl
 import com.example.habittracker.data.repository.SettingsRepositoryImpl
+import com.example.habittracker.data.repository.ThemeRepositoryImpl
 import com.example.habittracker.domain.repository.HabitRepository
+import com.example.habittracker.domain.repository.LanguageRepository
 import com.example.habittracker.domain.repository.SettingsRepository
+import com.example.habittracker.domain.repository.ThemeRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -33,5 +37,17 @@ abstract class RepositoryModule {
      abstract fun bindHabitRemoteDataSource(
          habitRemoteDataSourceImpl: HabitRemoteDataSourceImpl
      ): HabitRemoteDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindLanguageRepository(
+        languageRepositoryImpl: LanguageRepositoryImpl
+    ): LanguageRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindThemeRepository(
+        themeRepositoryImpl: ThemeRepositoryImpl
+    ): ThemeRepository
 
 }

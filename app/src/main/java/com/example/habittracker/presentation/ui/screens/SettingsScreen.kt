@@ -40,6 +40,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,22 +49,29 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.habittracker.R
-import com.example.habittracker.data.repository.AppLanguage
+import com.example.habittracker.domain.models.AppLanguage
+import com.example.habittracker.domain.models.ENGLISH_MODEL
+import com.example.habittracker.domain.models.Languages
 import com.example.habittracker.presentation.vm.ClearDataResult
+import com.example.habittracker.presentation.vm.LanguageViewModel
 import com.example.habittracker.presentation.vm.SettingsViewModel
+import com.example.habittracker.presentation.vm.ThemeViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
+    languageVM: LanguageViewModel = hiltViewModel(),
+    themeVM: ThemeViewModel = hiltViewModel(),
     onBackClick: () -> Unit = {}
 ) {
-    val isDarkMode by viewModel.isDarkMode.collectAsState()
-    val language by viewModel.language.collectAsState()
     val clearDataResult by viewModel.clearDataResult.collectAsState()
-    val isSecureStorageEnabled by viewModel.isSecureStorageEnabled.collectAsState()
     var showClearDataDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val selectedLanguage by remember { mutableStateOf(languageVM.getCurrentLanguage())}
+    val isDarkMode by themeVM.isDarkMode.collectAsState()
 
     val clearDataSuccessMessage = stringResource(R.string.clear_data_success)
     val clearDataErrorMessage = stringResource(R.string.clear_data_error)
@@ -119,50 +127,36 @@ fun SettingsScreen(
                 .padding(16.dp)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Security Section
-            SectionHeader(title = stringResource(R.string.security))
-
-            SecurityStatusCard(
-                isSecureStorageEnabled = isSecureStorageEnabled
-            )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
             // Appearance Section
-            SectionHeader(title = stringResource(R.string.appearance))
+            SectionHeader(title = stringResource(R.string.appearance_and_language))
 
             Spacer(modifier = Modifier.height(8.dp))
 
             SettingsToggleItem(
                 title = stringResource(R.string.dark_mode),
-                subtitle = if (isDarkMode) {
-                    stringResource(R.string.dark_mode_on)
-                } else {
-                    stringResource(R.string.dark_mode_off)
-                },
                 isChecked = isDarkMode,
-                onCheckedChange = { viewModel.toggleDarkMode(it) }
+                onCheckedChange = {
+                    themeVM.setDarkMode(it)
+                }
             )
-
-            HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-
-            // Language Section
-            SectionHeader(title = stringResource(R.string.language))
 
             Spacer(modifier = Modifier.height(8.dp))
 
             SettingsToggleItem(
                 title = stringResource(R.string.arabic_language),
-                subtitle = if (language == AppLanguage.ARABIC) {
-                    stringResource(R.string.language_arabic)
-                } else {
-                    stringResource(R.string.language_english)
-                },
-                isChecked = language == AppLanguage.ARABIC,
+                isChecked = selectedLanguage.code == Languages.AR.code,
                 onCheckedChange = { isArabic ->
-                    viewModel.setLanguage(
-                        if (isArabic) AppLanguage.ARABIC else AppLanguage.ENGLISH
-                    )
+                    val newLanguage = if (isArabic) {
+                        AppLanguage(
+                            id = Languages.AR.id,
+                            code = Languages.AR.code,
+                            name = Languages.AR.displayName
+                        )
+                    } else {
+                        ENGLISH_MODEL
+                    }
+                    languageVM.setLanguage(newLanguage)
                 }
             )
 
@@ -191,75 +185,8 @@ private fun SectionHeader(title: String) {
 }
 
 @Composable
-private fun SecurityStatusCard(isSecureStorageEnabled: Boolean) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSecureStorageEnabled) {
-                MaterialTheme.colorScheme.primaryContainer
-            } else {
-                MaterialTheme.colorScheme.errorContainer
-            }
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Icon(
-                imageVector = if (isSecureStorageEnabled) {
-                    Icons.Default.Lock
-                } else {
-                    Icons.Default.Lock
-                },
-                contentDescription = null,
-                modifier = Modifier.size(40.dp),
-                tint = if (isSecureStorageEnabled) {
-                    MaterialTheme.colorScheme.primary
-                } else {
-                    MaterialTheme.colorScheme.error
-                }
-            )
-
-            Column(
-                modifier = Modifier
-                    .weight(1f)
-                    .padding(start = 16.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.secure_storage),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.Bold
-                )
-                Text(
-                    text = if (isSecureStorageEnabled) {
-                        stringResource(R.string.secure_storage_enabled)
-                    } else {
-                        stringResource(R.string.secure_storage_disabled)
-                    },
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-
-            if (isSecureStorageEnabled) {
-                Icon(
-                    imageVector = Icons.Default.CheckCircle,
-                    contentDescription = stringResource(R.string.enabled),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-        }
-    }
-}
-
-@Composable
 private fun SettingsToggleItem(
     title: String,
-    subtitle: String,
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit
 ) {
@@ -274,11 +201,6 @@ private fun SettingsToggleItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge
-            )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
         Switch(

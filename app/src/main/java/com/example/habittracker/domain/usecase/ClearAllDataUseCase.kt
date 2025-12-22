@@ -7,15 +7,11 @@ class ClearAllDataUseCase @Inject constructor(
     private val settingsRepository: SettingsRepository
 ) {
     suspend operator fun invoke(): Result<Unit> {
-        return try {
-            val success = settingsRepository.clearAllData()
-            if (success) {
-                Result.success(Unit)
-            } else {
-                Result.failure(Exception("Failed to clear data"))
-            }
-        } catch (e: Exception) {
-            Result.failure(e)
+        val success = settingsRepository.clearAllData()
+        return if (success) {
+            Result.success(Unit)
+        } else {
+            Result.failure(Exception("Failed to clear data"))
         }
     }
 }

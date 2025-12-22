@@ -13,7 +13,12 @@ class HabitRepositoryImpl @Inject constructor(
 ) : HabitRepository {
 
     override suspend fun getHabits(): Result<List<Habit>> {
-        return Result.success(habitDao.getHabits().first().map { it.toDomain() })
+        return try {
+            val habits = habitDao.getHabits().first().map { it.toDomain() }
+            Result.success(habits)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     override suspend fun getHabitById(id: String): Result<Habit?> {

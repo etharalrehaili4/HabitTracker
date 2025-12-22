@@ -7,11 +7,7 @@ class DeleteHabitUseCase @Inject constructor(
     private val repository: HabitRepository
 ) {
     suspend operator fun invoke(habitId: String): Result<Unit> {
-        return try {
-            repository.deleteHabit(habitId)
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
+        repository.deleteHabit(habitId)
+        return Result.success(Unit)
     }
 }

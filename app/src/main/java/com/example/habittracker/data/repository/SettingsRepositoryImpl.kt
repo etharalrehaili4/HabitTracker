@@ -3,55 +3,22 @@ package com.example.habittracker.data.repository
 import android.content.Context
 import android.content.SharedPreferences
 import com.example.habittracker.data.local.HabitDao
+import com.example.habittracker.domain.models.ENGLISH_MODEL
+import com.example.habittracker.domain.repository.LanguageRepository
 import com.example.habittracker.domain.repository.SettingsRepository
+import com.example.habittracker.domain.repository.ThemeRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
-
-enum class AppLanguage(val code: String, val displayName: String) {
-    ENGLISH("en", "English"),
-    ARABIC("ar", "العربية")
-}
-
-enum class AppTheme {
-    LIGHT,
-    DARK,
-    SYSTEM
-}
 
 @Singleton
 class SettingsRepositoryImpl @Inject constructor(
     private val sharedPreferences: SharedPreferences,
     @ApplicationContext private val context: Context,
-    private val habitDao: HabitDao
+    private val habitDao: HabitDao,
+    private val themeRepository: ThemeRepository,
+    private val languageRepository: LanguageRepository
 ) : SettingsRepository {
-
-    companion object {
-        private const val KEY_THEME = "app_theme"
-        private const val KEY_LANGUAGE = "app_language"
-        private const val KEY_NOTIFICATIONS_ENABLED = "notifications_enabled"
-        private const val KEY_SYNC_ENABLED = "sync_enabled"
-    }
-
-    private val _isDarkMode = MutableStateFlow(loadTheme())
-    override val isDarkMode: StateFlow<Boolean> = _isDarkMode.asStateFlow()
-
-    private val _language = MutableStateFlow(loadLanguage())
-    override val language: StateFlow<AppLanguage> = _language.asStateFlow()
-
-    private val _isSecureStorageEnabled = MutableStateFlow(isSecureStorageEnabled())
-    override val isSecureStorageEnabled: StateFlow<Boolean> = _isSecureStorageEnabled.asStateFlow()
-
-    private fun isSecureStorageEnabled(): Boolean {
-        return sharedPreferences.contains("encrypted_key")
-    }
-
-    override fun refreshSecureStorageState() {
-        _isSecureStorageEnabled.value = isSecureStorageEnabled()
-    }
 
     override suspend fun clearAllData(): Boolean {
         return try {
@@ -79,10 +46,11 @@ class SettingsRepositoryImpl @Inject constructor(
                     .apply()
             }
 
-            // Reset state flows to defaults (but keep secure storage enabled)
-            _isDarkMode.value = false
-            _language.value = AppLanguage.ENGLISH
-            _isSecureStorageEnabled.value = isSecureStorageEnabled()
+            // Reset theme to light mode
+            themeRepository.setDarkMode(false)
+
+            // Reset language to English
+            languageRepository.setLanguage(ENGLISH_MODEL)
 
             // Delete the actual database files
             val dbFile = context.getDatabasePath("habit_database")
@@ -96,33 +64,13 @@ class SettingsRepositoryImpl @Inject constructor(
             true
         } catch (e: Exception) {
             try {
-                // On error, try to at least reset the UI state
-                _isDarkMode.value = loadTheme()
-                _language.value = loadLanguage()
-                _isSecureStorageEnabled.value = isSecureStorageEnabled()
+                // Reset theme and language even if other operations fail
+                themeRepository.setDarkMode(false)
+                languageRepository.setLanguage(ENGLISH_MODEL)
             } catch (prefException: Exception) {
                 // Ignore preference errors
             }
             false
         }
-    }
-
-    private fun loadTheme(): Boolean {
-        return sharedPreferences.getBoolean(KEY_THEME, false)
-    }
-
-    private fun loadLanguage(): AppLanguage {
-        val code = sharedPreferences.getString(KEY_LANGUAGE, AppLanguage.ENGLISH.code)
-        return AppLanguage.entries.find { it.code == code } ?: AppLanguage.ENGLISH
-    }
-
-    override fun setDarkMode(isDark: Boolean) {
-        sharedPreferences.edit().putBoolean(KEY_THEME, isDark).apply()
-        _isDarkMode.value = isDark
-    }
-
-    override fun setLanguage(language: AppLanguage) {
-        sharedPreferences.edit().putString(KEY_LANGUAGE, language.code).apply()
-        _language.value = language
     }
 }
