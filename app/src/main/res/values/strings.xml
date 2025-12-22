@@ -40,5 +40,9 @@
     <string name="created_at">Created At</string>
     <string name="edit">Edit</string>
     <string name="delete">Delete</string>
+    <string name="edit_habit">Edit habit</string>
+    <string name="save">Save</string>
+    <string name="delete_habit_title">Delete Habit</string>
+    <string name="delete_habit_desc">Are you sure you want to delete "%1$s"? This action cannot be undone.</string>
 
 </resources>

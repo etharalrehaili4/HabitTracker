@@ -9,7 +9,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ThemeViewModel @Inject constructor(
-    private val getThemeUseCase: GetThemeUseCase,
+    getThemeUseCase: GetThemeUseCase,
     private val setThemeUseCase: SetThemeUseCase
 ) : ViewModel() {
 

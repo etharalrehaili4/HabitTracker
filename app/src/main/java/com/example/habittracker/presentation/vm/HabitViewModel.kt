@@ -96,7 +96,6 @@ class HabitViewModel @Inject constructor(
     }
 
     private fun handleAddHabit(name: String) {
-        // Clear previous errors
         setState {
             copy(
                 formState = formState.copy(nameError = null)
@@ -154,7 +153,6 @@ class HabitViewModel @Inject constructor(
                 }
         }
     }
-
 
     private fun handleUpdateHabit(id: String, name: String) {
         if (name.isBlank()) {

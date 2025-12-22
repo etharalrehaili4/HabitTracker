@@ -248,10 +248,13 @@ fun HabitDetailsScreen(
                                 contentDescription = null,
                                 modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
+
                             Text(stringResource(R.string.edit))
                         }
 
+                        // -- Delete Button --
                         Button(
                             onClick = { showDeleteDialog = true },
                             modifier = Modifier.weight(1f),
@@ -259,13 +262,16 @@ fun HabitDetailsScreen(
                                 containerColor = MaterialTheme.colorScheme.error
                             )
                         ) {
+                            // -- Delete Icon and Text --
                             Icon(
                                 imageVector = Icons.Default.Delete,
                                 contentDescription = null,
-                                modifier = Modifier.size(20.dp)
+                                modifier = Modifier.size(dimensionResource(R.dimen.icon_size_small))
                             )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text("Delete")
+
+                            Spacer(modifier = Modifier.width(dimensionResource(R.dimen.spacing_small)))
+
+                            Text(stringResource(R.string.delete))
                         }
                     }
                 }
@@ -284,6 +290,7 @@ private fun EditHabitDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
+        // -- Edit Icon and Title --
         icon = {
             Icon(
                 imageVector = Icons.Default.Edit,
@@ -291,28 +298,32 @@ private fun EditHabitDialog(
             )
         },
         title = {
-            Text(text = "Edit Habit")
+            Text(stringResource(R.string.edit_habit))
         },
+
+        // -- Text Field for Habit Name --
         text = {
             OutlinedTextField(
                 value = habitName,
                 onValueChange = { habitName = it },
-                label = { Text("Habit Name") },
+                label = { Text(stringResource(R.string.habit_name)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth()
             )
         },
+
+        // -- Confirm and Dismiss Buttons --
         confirmButton = {
             Button(
                 onClick = { onConfirm(habitName) },
                 enabled = habitName.isNotBlank()
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )
@@ -326,6 +337,8 @@ private fun DeleteConfirmationDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
+
+        // -- Delete Icon and Title --
         icon = {
             Icon(
                 imageVector = Icons.Default.Delete,
@@ -334,11 +347,13 @@ private fun DeleteConfirmationDialog(
             )
         },
         title = {
-            Text(text = "Delete Habit")
+            Text(text = stringResource(R.string.delete_habit_title))
         },
         text = {
-            Text(text = "Are you sure you want to delete \"$habitName\"? This action cannot be undone.")
+            Text(text = stringResource(R.string.delete_habit_desc, habitName))
         },
+
+        // -- Confirm and Dismiss Buttons --
         confirmButton = {
             Button(
                 onClick = onConfirm,
@@ -346,12 +361,12 @@ private fun DeleteConfirmationDialog(
                     containerColor = MaterialTheme.colorScheme.error
                 )
             ) {
-                Text("Delete")
+                Text(stringResource(R.string.delete))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

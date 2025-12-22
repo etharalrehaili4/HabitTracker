@@ -40,5 +40,9 @@
     <string name="created_at">تاريخ الإنشاء</string>
     <string name="edit">تعديل</string>
     <string name="delete">حذف</string>
+    <string name="edit_habit">تعديل العادة</string>
+    <string name="save">حفظ</string>
+    <string name="delete_habit_title">حذف العادة</string>
+    <string name="delete_habit_desc">هل أنت متأكد من أنك تريد حذف "%1$s"؟ لا يمكن التراجع عن هذا الإجراء.</string>
 
 </resources>
